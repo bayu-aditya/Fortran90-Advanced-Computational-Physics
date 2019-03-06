@@ -1,6 +1,4 @@
 # Advanced Computational Physics
-*Author : Bayu Aditya (2019)*
-
 Analisis numerik lanjutan untuk bidang fisika dan teknik dengan menggunakan bahasa pemrogramman Fortran 90. 
 
 ## Daftar Isi
