@@ -9,7 +9,7 @@ program test_bisection
     real, external :: func
 
     a = -1.0
-    b = 80.0
+    b = 0
     call bisection(func, a, b, hasil)
     write (*,*) "Hasil akar penyelesaian dari bisection : "
     write (*,10) hasil
