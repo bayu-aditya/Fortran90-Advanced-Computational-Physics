@@ -33,6 +33,8 @@ bisection(func, batas_bawah, batas_atas, x)
         - Apabila $f(a) * f(b) > 0$:
             - Memindahkan nilai $x$ menjadi batas atas ($a$)
         - Update nilai tengah berdasarkan batas yang baru menjadi nilai $x$ dengan cara :
-            $$x = \frac{a + b}{2}$$
+        
+        <img src="https://latex.codecogs.com/gif.latex?x&space;=&space;\frac{a&space;&plus;&space;b}{2}" title="x = \frac{a + b}{2}" />
+        
         - Apabila kesalahan relatif semu < toleransi yang diinginkan, maka hentikan looping.
             $$kesalahan relatif semu = \left| \frac{x_{i} - x_{i+1}}{x_{i+1}} \right|$$
