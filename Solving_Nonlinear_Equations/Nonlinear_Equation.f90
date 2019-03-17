@@ -3,9 +3,13 @@
 
 module nonlinear_equation
 
-    implicit none
-    real, parameter, private :: tolerance = 0.00001
+    use header_module
     
+    implicit none
+    INTEGER, PARAMETER :: dpr=KIND(1.0D0)
+    real(8), parameter, private :: tolerance_double = 0.00001_dpr
+    real, parameter, private :: tolerance = 0.00001
+
     contains
         subroutine bisection(func, batas_bawah, batas_atas, x)
             implicit none
@@ -86,18 +90,39 @@ module nonlinear_equation
             end do
         end subroutine bisection
 
-        subroutine header(metode)
+        subroutine secant(func_dp, titik_1_dp, titik_2_dp, hasil_dp)
             implicit none
-            integer, intent(in) :: metode
-
-            write (*,*) "----------------------------------------------------------------------------------------------------------"
-            if (metode == 1) then
-                write (*,*) "|      Metode : Bisection"
-            end if
-            write (*,*) "|          Author : Bayu Aditya"
-            write (*,*) "|          Copyright (c) 2019"
-            write (*,*) "----------------------------------------------------------------------------------------------------------"
+            
+            real(8) :: func_dp
+            real(8), intent(in) :: titik_1_dp, titik_2_dp
+            real(8), intent(out) :: hasil_dp
+            real(8) :: x_i_2, x_i_1
+            real(8) :: x_i
+            real(8) :: tol_i
+            integer :: i
+            call header(2)
+        
+            ! iterasi untuk i = 0 (awal)
+            x_i_2 = titik_1_dp                         ! titik x i-2
+            x_i_1 = titik_2_dp                         ! titik x i-1
+            x_i = (x_i_2*func_dp(x_i_1) - x_i_1*func_dp(x_i_2)) / (func_dp(x_i_1) - func_dp(x_i_2))
+            write (*,'(A10, 5(A25))') "Iterasi(i)", "Titik x_i-2", "Titik x_i-1", "Titik x_i", "Fungsi di x_i", "Toleransi"
+            write (*,'(I10, 4(F25.15))') 0, x_i_2, x_i_1, x_i, func_dp(x_i)
+        
+            ! iterasi ke - i (looping)
+            i = 1
+            do
+                x_i_2 = x_i_1
+                x_i_1 = x_i
+                x_i = (x_i_2*func_dp(x_i_1) - x_i_1*func_dp(x_i_2)) / (func_dp(x_i_1) - func_dp(x_i_2))
+                tol_i = abs((x_i_1 - x_i) / (x_i))
+                write (*,'(I10, 5(F25.15))') i, x_i_2, x_i_1, x_i, func_dp(x_i), tol_i
+                
+                if (tol_i < tolerance_double) exit
+        
+                i = i + 1
+            end do
+            hasil_dp = x_i
         end subroutine
-
 
 end module nonlinear_equation
