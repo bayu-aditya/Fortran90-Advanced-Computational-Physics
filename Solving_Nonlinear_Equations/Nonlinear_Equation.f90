@@ -2,12 +2,10 @@
 ! Copyright (c) 2019
 
 module nonlinear_equation
-
-    use header_module
     
     implicit none
     INTEGER, PARAMETER :: dpr=KIND(1.0D0)
-    real(8), parameter, private :: tolerance_double = 0.00001_dpr
+    real(8), parameter, private :: tolerance_double = 0.00000000001_dpr
     real, parameter, private :: tolerance = 0.00001
 
     contains
@@ -90,17 +88,18 @@ module nonlinear_equation
             end do
         end subroutine bisection
 
+
         subroutine secant(func_dp, titik_1_dp, titik_2_dp, hasil_dp)
             implicit none
             
-            real(8) :: func_dp
-            real(8), intent(in) :: titik_1_dp, titik_2_dp
-            real(8), intent(out) :: hasil_dp
-            real(8) :: x_i_2, x_i_1
-            real(8) :: x_i
-            real(8) :: tol_i
-            integer :: i
-            call header(2)
+            real(8) :: func_dp                                  ! fungsi yang akan dikerjakan
+            real(8), intent(in) :: titik_1_dp, titik_2_dp       ! menentukan 2 titik x awal
+            real(8), intent(out) :: hasil_dp                    ! hasil x saat f(x) ~ 0
+            real(8) :: x_i_2, x_i_1                             ! titik x(i-2) dan x(i-1)
+            real(8) :: x_i                                      ! titik x(i)
+            real(8) :: tol_i                                    ! nilai toleransi iterasi ke-i
+            integer :: i                                        ! indeks iterasi looping
+            call header(2)                                      ! 2 merupakan code secant
         
             ! iterasi untuk i = 0 (awal)
             x_i_2 = titik_1_dp                         ! titik x i-2
@@ -118,11 +117,27 @@ module nonlinear_equation
                 tol_i = abs((x_i_1 - x_i) / (x_i))
                 write (*,'(I10, 5(F25.15))') i, x_i_2, x_i_1, x_i, func_dp(x_i), tol_i
                 
+                ! saat kesalahan relatif semu kurang dari toleransi -> iterasi dihentikan
                 if (tol_i < tolerance_double) exit
         
                 i = i + 1
             end do
+            ! nilai akar merupakan titik x ke - i
             hasil_dp = x_i
         end subroutine
 
+        subroutine header(metode)
+            implicit none
+            integer, intent(in) :: metode
+
+            write (*,*) "----------------------------------------------------------------------------------------------------------"
+            if (metode == 1) then
+                write (*,*) "|      Metode : Bisection"
+            else if (metode == 2) then
+                write (*,*) "|      Metode : Secant"
+            end if
+            write (*,*) "|          Author : Bayu Aditya"
+            write (*,*) "|          Copyright (c) 2019"
+            write (*,*) "----------------------------------------------------------------------------------------------------------"
+        end subroutine
 end module nonlinear_equation

@@ -7,14 +7,14 @@ program metode_secant
     real(8) :: batas_kiri, batas_kanan
     real(8) :: hasil
 
-    batas_kiri = 0_dp
-    batas_kanan = 0.1_dp
+    batas_kiri = 10_dp
+    batas_kanan = 10.5_dp
 
     call secant(func, batas_kiri, batas_kanan, hasil)
 
     write(*,'(A, F25.15)') "hasil adalah ", hasil
-
 end program metode_secant
+
 
 double precision function func(x)
     implicit none
