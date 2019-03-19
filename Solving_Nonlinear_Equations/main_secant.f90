@@ -7,11 +7,18 @@ program metode_secant
     real(8) :: batas_kiri, batas_kanan
     real(8) :: hasil
 
-    batas_kiri = 10_dp
-    batas_kanan = 10.5_dp
+    batas_kiri = 0.72_dp
+    batas_kanan = 0.75_dp
+
+    call bisection_dp(func, batas_kiri, batas_kanan, hasil)
+    write(*,'(A, F25.15)') "hasil adalah ", hasil
+    write(*,*)
+
+    call false_position(func, batas_kiri, batas_kanan, hasil)
+    write(*,'(A, F25.15)') "hasil adalah ", hasil
+    write(*,*)
 
     call secant(func, batas_kiri, batas_kanan, hasil)
-
     write(*,'(A, F25.15)') "hasil adalah ", hasil
 end program metode_secant
 
