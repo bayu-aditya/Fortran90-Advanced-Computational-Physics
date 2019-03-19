@@ -207,6 +207,35 @@ module nonlinear_equation
         end subroutine false_position
 
 
+        subroutine newton_raphson(func_dp, func_der_dp, titik_awal_dp, hasil_dp)
+            implicit none
+            real(8) :: func_dp, func_der_dp
+            real(8), intent(in) :: titik_awal_dp
+            real(8), intent(out) :: hasil_dp
+            real(8) :: x_old, x_i
+            real(8) :: tol_i
+            integer :: i
+            call header(3)
+
+            x_old = titik_awal_dp
+            write (*,'(A10, 4(A25))') "Iterasi(i)", "Titik x_i-1", "Titik x_i", "Fungsi di x_i", "Toleransi"
+            
+            i = 1
+            do
+                x_i = x_old - (func_dp(x_old) / func_der_dp(x_old))
+                tol_i = abs((x_old - x_i) / (x_i))
+                
+                write (*,'(I10, 4(F25.15))') i, x_old, x_i, func_dp(x_i), tol_i
+                
+                if (tol_i < tolerance_double) exit
+
+                x_old = x_i
+                i = i+1
+            end do
+            hasil_dp = x_i
+        end subroutine newton_raphson
+
+
         subroutine secant(func_dp, titik_1_dp, titik_2_dp, hasil_dp)
             implicit none
             
@@ -217,7 +246,7 @@ module nonlinear_equation
             real(8) :: x_i                                      ! titik x(i)
             real(8) :: tol_i                                    ! nilai toleransi iterasi ke-i
             integer :: i                                        ! indeks iterasi looping
-            call header(3)                                      ! 2 merupakan code secant
+            call header(4)                                      ! 2 merupakan code secant
         
             ! iterasi untuk i = 0 (awal)
             x_i_2 = titik_1_dp                         ! titik x i-2
@@ -254,6 +283,8 @@ module nonlinear_equation
             else if (metode == 2) then
                 write (*,*) "|      Metode : False Position"
             else if (metode == 3) then
+                write (*,*) "|      Metode : Newton Rapshon"
+            else if (metode == 4) then
                 write (*,*) "|      Metode : Secant"
             end if
             write (*,*) "|          Author : Bayu Aditya"

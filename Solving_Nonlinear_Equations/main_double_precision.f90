@@ -4,6 +4,7 @@ program metode_secant
     implicit none
     INTEGER, PARAMETER :: dp=KIND(1.0D0)
     real(8), external :: func
+    real(8), external :: func_derivative
     real(8) :: batas_kiri, batas_kanan
     real(8) :: hasil
 
@@ -15,6 +16,10 @@ program metode_secant
     write(*,*)
 
     call false_position(func, batas_kiri, batas_kanan, hasil)
+    write(*,'(A, F25.15)') "hasil adalah ", hasil
+    write(*,*)
+
+    call newton_raphson(func, func_derivative, batas_kanan, hasil)
     write(*,'(A, F25.15)') "hasil adalah ", hasil
     write(*,*)
 
@@ -30,3 +35,11 @@ double precision function func(x)
 
     func = cos(x) - x
 end function func
+
+double precision function func_derivative(x)
+    implicit none
+    real(8), intent(in) :: x
+    real(8) :: sin
+
+    func_derivative = -sin(x) - 1
+end function func_derivative
