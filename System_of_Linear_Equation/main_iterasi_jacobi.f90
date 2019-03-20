@@ -24,7 +24,7 @@ program main_gauss_jordan
     call print_vektor(hasil)
 
     ! Proses gauss Jordan
-    call gauss_jordan(matriksA, matriksB, hasil)
+    call iterasi_jacobi(matriksA, matriksB, hasil)
 
     ! Menampilkan matriks dan vektor hasil setelah proses
     write(*,*) "Matriks A sesudah proses"
