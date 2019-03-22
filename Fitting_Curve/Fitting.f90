@@ -1,10 +1,72 @@
 module fitting_curve
     implicit none
-    integer, parameter :: SGL = 4
-    integer, parameter :: DBL = 8
+    integer, private, parameter :: SGL = 4
+    integer, private, parameter :: DBL = 8
 
     contains
 !+-----------------------------------------------------------------------------------------+
+!                         FITTING DATA : Lagrange                                          |
+!+-----------------------------------------------------------------------------------------+
+    subroutine lagrange_plot(dataX, dataY, name_output)
+        implicit none
+        real(KIND=DBL), dimension(:), intent(in) :: dataX
+        real(KIND=DBL), dimension(:), intent(in) :: dataY
+        character(*), intent(in) :: name_output
+
+        integer, parameter :: n_data_plot = 500
+        real(KIND=DBL), dimension(0:n_data_plot) :: X, Y
+        real(KIND=DBL) :: range, min, max, diff
+        integer :: i
+
+        ! Data untuk Sumbu X
+        range = maxval(dataX) - minval(dataX)
+        min = minval(dataX) - range/5_DBL
+        max = maxval(dataX) + range/5_DBL
+
+        diff = (max - min)/n_data_plot
+        X(0) = min
+        do i = 1, n_data_plot
+            X(i) = min + diff*DBLE(i)
+            Y(i) = lagrange(X(i), dataX, dataY)
+        end do
+
+        ! Membuat data koordinat titik plot ke dalam file
+        open(unit = 13, file = name_output, action='write')
+        do i = 0, n_data_plot
+            write(13, '(F25.15, A, F25.15)') X(i), ",", Y(i)
+        end do
+        close(13)
+
+        write(*, '(3(A))') "[INFO] Data interpolasi lagrange '", name_output, "' berhasil dibuat"
+    end subroutine lagrange_plot
+
+
+    double precision function lagrange(x, dataX, dataY)
+        implicit none
+        real(KIND=DBL), intent(in) :: x
+        real(KIND=DBL), dimension(:), intent(in) :: dataX
+        real(KIND=DBL), dimension(:), intent(in) :: dataY
+        
+        real(KIND=DBL) :: sum, prod
+        integer :: i, j
+        integer :: n
+
+        n = ubound(dataX, 1)
+
+        sum = 0_DBL
+        do i = 1, n
+            prod = 1_DBL
+            do j = 1, n
+                if (i /= j) prod = prod * ((x - dataX(j)) / (dataX(i) - dataX(j)))
+            end do
+
+            sum = sum + prod*dataY(i)
+        end do
+        lagrange = sum
+    end function lagrange
+
+
+    !+-----------------------------------------------------------------------------------------+
 !                               FITTING DATA                                               |
 !+-----------------------------------------------------------------------------------------+
     subroutine least_square(dataX, dataY, orde, name_output)
@@ -71,21 +133,6 @@ module fitting_curve
 
         write(*,'(A)') "[INFO] Proses Least Square selesai"
     end subroutine least_square
-
-
-!    subroutine lagrange(dataX, dataY)
-!        implicit none
-!        real(KIND=DBL), dimension(:), intent(in) :: dataX, dataY
-
-!        real(KIND=DBL) :: sum
-!        integer :: i, n
-
-!        n = ubound(dataX, 1)
-
-!        do i = 1, n
-!            sum = 0_DBL
-!        end do
-!    end subroutine lagrange
 
 
 !+-------------------------------------------------------------------------------------------+
