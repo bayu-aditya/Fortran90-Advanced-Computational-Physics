@@ -66,19 +66,54 @@ module fitting_curve
     end function lagrange
 
 
-    !+-----------------------------------------------------------------------------------------+
-!                               FITTING DATA                                               |
 !+-----------------------------------------------------------------------------------------+
-    subroutine least_square(dataX, dataY, orde, name_output)
+!                         FITTING DATA : Least Square                                      |
+!+-----------------------------------------------------------------------------------------+
+    subroutine least_square_plot(dataX, dataY, orde, name_output)
         implicit none
         real(KIND=DBL), dimension(:), intent(in) :: dataX
         real(KIND=DBL), dimension(:), intent(in) :: dataY
-        integer, intent(in) :: orde
+        integer :: orde
         character(*), intent(in) :: name_output
+
+        integer, parameter :: n_data_plot = 500
+        real(KIND=DBL), dimension(0:n_data_plot) :: X, Y
+        real(KIND=DBL) :: range, min, max, diff
+        integer :: i
+
+        ! Data untuk Sumbu X
+        range = maxval(dataX) - minval(dataX)
+        min = minval(dataX) - range/5_DBL
+        max = maxval(dataX) + range/5_DBL
+
+        diff = (max - min)/n_data_plot
+        X(0) = min
+        do i = 1, n_data_plot
+            X(i) = min + diff*DBLE(i)
+            Y(i) = least_square(X(i), dataX, dataY, orde)
+        end do
+
+        ! Membuat data koordinat titik plot ke dalam file
+        open(unit = 13, file = name_output, action='write')
+        do i = 0, n_data_plot
+            write(13, '(F25.15, A, F25.15)') X(i), ",", Y(i)
+        end do
+        close(13)
+        
+        write(*, '(3(A))') "[INFO] Data Least Square '", name_output, "' berhasil dibuat"
+    end subroutine least_square_plot
+
+
+    double precision function least_square(x, dataX, dataY, orde)
+        implicit none
+        real(KIND=DBL), intent(in) :: x
+        real(KIND=DBL), dimension(:), intent(in) :: dataX
+        real(KIND=DBL), dimension(:), intent(in) :: dataY
+        integer, intent(in) :: orde
 
         real(KIND=DBL), allocatable, dimension(:,:) :: matC
         real(KIND=DBL), allocatable, dimension(:) :: matB
-        real(KIND=DBL), allocatable, dimension(:) :: hasil
+        real(KIND=DBL), allocatable, dimension(:) :: koef_polinomial
         real(KIND=DBL) :: sum
         integer :: i, j, k
         integer :: n
@@ -91,11 +126,11 @@ module fitting_curve
 
         allocate(matC(0:orde, 0:orde))
         allocate(matB(0:orde))
-        allocate(hasil(0:orde))
+        allocate(koef_polinomial(0:orde))
 
         matC = 0_DBL
         matB = 0_DBL
-        hasil = 0_DBL
+        koef_polinomial = 0_DBL
 
         ! Membuat matriks C (Persegi) dan matriks B (Kolom)
         do k = 0, orde
@@ -113,26 +148,29 @@ module fitting_curve
             end do
             matB(k) = sum
         end do
-
-        write(*,*) "matriks C"
-        call print_matriks(matC)
-
-        write(*,*) "matriks B"
-        call print_vektor(matB)
-
+        
         ! Proses Gauss Jordan
-        call gauss_jordan(matC, matB, hasil)
-        call print_hasil(hasil)
+        call gauss_jordan(matC, matB, koef_polinomial)
 
-        ! Proses pembuatan data koordinat dari hasil fitting ke dalam file
-        call write_data_plot_least_square(minval(dataX), maxval(dataX), hasil, name_output)
+        ! ------------------ ANALYSIS SECTION ---------------------------
+        !write(*,*) "matriks C"
+        !call print_matriks(matC)
+        !write(*,*) "matriks B"
+        !call print_vektor(matB)
+        !call print_hasil(hasil)
+        ! -------------- END OF ANALYSIS SECTION ------------------------
+
+        ! Mendapatkan f(x)
+        sum = 0_DBL
+        do j = 0, orde
+            sum = sum + koef_polinomial(j)*x**(j)
+        end do
+        least_square = sum
 
         deallocate(matC)
         deallocate(matB)
-        deallocate(hasil)
-
-        write(*,'(A)') "[INFO] Proses Least Square selesai"
-    end subroutine least_square
+        deallocate(koef_polinomial)
+    end function least_square
 
 
 !+-------------------------------------------------------------------------------------------+
@@ -204,10 +242,6 @@ module fitting_curve
             end do
             x(n-j) = (matriksB(n-j) - sum) / (matriksA(n-j, n-j))
         end do
-
-        ! Menampilkan informasi bahwa proses Gauss Jordan telah selesai
-        write(*,'(A)') "[INFO] Proses Gauss Jordan Selesai"
-        write(*,*)
     end subroutine gauss_jordan
 
 
@@ -254,47 +288,6 @@ module fitting_curve
 !+---------------------------------------------------------------------------------------------+
 !                               DATA SECTIONS                                                  |
 !+---------------------------------------------------------------------------------------------+
-    subroutine write_data_plot_least_square(minX, maxX, koef_polinomial, name_output)
-        implicit none
-        real(KIND=DBL), intent(in) :: minX, maxX
-        real(KIND=DBL), dimension(:), intent(in) :: koef_polinomial
-        character(*), intent(in) :: name_output
-
-        integer, parameter :: n = 500
-        real(KIND=DBL), dimension(0:n) :: X, Y
-        real(KIND=DBL) :: diff, sum, range, min, max
-        integer :: i, j
-
-        ! Data untuk sumbu X
-        range = maxX - minX
-        min = minX - range/5_DBL
-        max = maxX + range/5_DBL
-
-        diff = (max-min)/n
-        X(0) = min
-        do i = 1, n
-            X(i) = min + diff*DBLE(i)
-        end do
-
-        ! Data untuk sumbu Y
-        do i = 0, n
-            sum = 0_DBL
-            do j = 1, ubound(koef_polinomial, 1)
-                sum = sum + koef_polinomial(j)*X(i)**(j-1)
-            end do
-            Y(i) = sum
-        end do
-
-        open(unit = 10, file = name_output, action='write')
-        do i = 0, n
-            write(10,'(F25.15, A, F25.15)') X(i), ",", Y(i)
-        end do
-        close(10)
-
-        write(*,'(3(A))') "[INFO] Data fitting '", name_output, "' berhasil dibuat"
-    end subroutine write_data_plot_least_square
-
-
     subroutine import_data(filename, dataX, dataY)
         implicit none
         character(*), intent(in) :: filename
