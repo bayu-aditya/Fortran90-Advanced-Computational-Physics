@@ -7,7 +7,7 @@ program main_least_square
 
     call import_data('data.dat', dataX, dataY)
 
-    call least_square(dataX, dataY)
+    call least_square(dataX, dataY, 9, 'Hasil_orde_9.dat')
 
     deallocate(dataX)
     deallocate(dataY)

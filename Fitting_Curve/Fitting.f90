@@ -5,32 +5,39 @@ module fitting_curve
 
     contains
 !+-----------------------------------------------------------------------------------------+
-!                               LEAST SQUARE                                               |
+!                               FITTING DATA                                               |
 !+-----------------------------------------------------------------------------------------+
-    subroutine least_square(dataX, dataY)
+    subroutine least_square(dataX, dataY, orde, name_output)
         implicit none
         real(KIND=DBL), dimension(:), intent(in) :: dataX
         real(KIND=DBL), dimension(:), intent(in) :: dataY
+        integer, intent(in) :: orde
+        character(*), intent(in) :: name_output
 
         real(KIND=DBL), allocatable, dimension(:,:) :: matC
         real(KIND=DBL), allocatable, dimension(:) :: matB
-
         real(KIND=DBL), allocatable, dimension(:) :: hasil
         real(KIND=DBL) :: sum
         integer :: i, j, k
         integer :: n
 
         n = ubound(dataX, 1)
-        allocate(matC(0:n-1, 0:n-1))
-        allocate(matB(0:n-1))
-        allocate(hasil(n))
+        if (orde > n-1) then 
+            write(*,'(A)') "[PERINGATAN] Input Orde lebih besar dari jumlah data !" 
+            STOP
+        end if
+
+        allocate(matC(0:orde, 0:orde))
+        allocate(matB(0:orde))
+        allocate(hasil(0:orde))
 
         matC = 0_DBL
         matB = 0_DBL
         hasil = 0_DBL
 
-        do k = 0, n-1
-            do j = 0, n-1
+        ! Membuat matriks C (Persegi) dan matriks B (Kolom)
+        do k = 0, orde
+            do j = 0, orde
                 sum = 0_DBL
                 do i = 1, n
                     sum = sum + dataX(i)**(j+k)
@@ -55,12 +62,30 @@ module fitting_curve
         call gauss_jordan(matC, matB, hasil)
         call print_hasil(hasil)
 
+        ! Proses pembuatan data koordinat dari hasil fitting ke dalam file
+        call write_data_plot_least_square(minval(dataX), maxval(dataX), hasil, name_output)
+
         deallocate(matC)
         deallocate(matB)
         deallocate(hasil)
 
         write(*,'(A)') "[INFO] Proses Least Square selesai"
     end subroutine least_square
+
+
+!    subroutine lagrange(dataX, dataY)
+!        implicit none
+!        real(KIND=DBL), dimension(:), intent(in) :: dataX, dataY
+
+!        real(KIND=DBL) :: sum
+!        integer :: i, n
+
+!        n = ubound(dataX, 1)
+
+!        do i = 1, n
+!            sum = 0_DBL
+!        end do
+!    end subroutine lagrange
 
 
 !+-------------------------------------------------------------------------------------------+
@@ -182,6 +207,47 @@ module fitting_curve
 !+---------------------------------------------------------------------------------------------+
 !                               DATA SECTIONS                                                  |
 !+---------------------------------------------------------------------------------------------+
+    subroutine write_data_plot_least_square(minX, maxX, koef_polinomial, name_output)
+        implicit none
+        real(KIND=DBL), intent(in) :: minX, maxX
+        real(KIND=DBL), dimension(:), intent(in) :: koef_polinomial
+        character(*), intent(in) :: name_output
+
+        integer, parameter :: n = 500
+        real(KIND=DBL), dimension(0:n) :: X, Y
+        real(KIND=DBL) :: diff, sum, range, min, max
+        integer :: i, j
+
+        ! Data untuk sumbu X
+        range = maxX - minX
+        min = minX - range/5_DBL
+        max = maxX + range/5_DBL
+
+        diff = (max-min)/n
+        X(0) = min
+        do i = 1, n
+            X(i) = min + diff*DBLE(i)
+        end do
+
+        ! Data untuk sumbu Y
+        do i = 0, n
+            sum = 0_DBL
+            do j = 1, ubound(koef_polinomial, 1)
+                sum = sum + koef_polinomial(j)*X(i)**(j-1)
+            end do
+            Y(i) = sum
+        end do
+
+        open(unit = 10, file = name_output, action='write')
+        do i = 0, n
+            write(10,'(F25.15, A, F25.15)') X(i), ",", Y(i)
+        end do
+        close(10)
+
+        write(*,'(3(A))') "[INFO] Data fitting '", name_output, "' berhasil dibuat"
+    end subroutine write_data_plot_least_square
+
+
     subroutine import_data(filename, dataX, dataY)
         implicit none
         character(*), intent(in) :: filename
@@ -201,7 +267,7 @@ module fitting_curve
             read(8,*) (dataXY(i,j), j = 1, 2)
         end do
 
-        write(*,'(A, I3, A)') "[INFO] Input ", n, " baris"
+        write(*,'(A, I3, A)') "[INFO] Input ", n, " data"
         close(8)
 
         dataX = dataXY(:,1)
