@@ -83,17 +83,23 @@ module system_of_linear_equation
         real, dimension(:,:), intent(in) :: matriksA
         real, dimension(:,:), intent(out) :: matriksL
         real, dimension(:,:), intent(out) :: matriksU
+
+        real, allocatable, dimension(:,:) :: matA
         real :: sum
         integer :: n
         integer :: i, j, k
+        integer :: a
 
         n = ubound(matriksA, 1)
         matriksL = 0
         matriksU = 0
 
-        matriksL(:,1) = matriksA(:,1)
+        allocate(matA(n, n))
+        matA = matriksA
+
+        matriksL(:,1) = matA(:,1)
         do j = 2, n
-            matriksU(1,j) = matriksA(1,j) / matriksL(1,1)
+            matriksU(1,j) = matA(1,j) / matriksL(1,1)
         end do
 
         do j = 2, n
@@ -102,14 +108,21 @@ module system_of_linear_equation
                 do k = 1, j-1
                     sum = sum + matriksL(i,k)*matriksU(k,j)
                 end do
-                matriksL(i,j) = matriksA(i,j) - sum
+                matriksL(i,j) = matA(i,j) - sum
+            end do
 
+            if (matriksL(j,j) == 0) then
+                call tukar_baris(matriksL, j, j+1)
+                call tukar_baris(matA, j, j+1)
+                !call pivot(matA, matriksB, j)
+            end if
 
+            do i = j, n
                 sum = 0
                 do k = 1, j-1
                     sum = sum + matriksL(j,k)*matriksU(k,i)
                 end do
-                matriksU(j,i) = (matriksA(j,i) - sum) / matriksL(j,j)
+                matriksU(j,i) = (matA(j,i) - sum) / matriksL(j,j)
             end do
         end do
         

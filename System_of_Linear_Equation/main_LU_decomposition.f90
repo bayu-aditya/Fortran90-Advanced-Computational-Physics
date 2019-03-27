@@ -4,7 +4,6 @@ program main_LU_decomposition
     implicit none
     real, allocatable, dimension(:,:) :: matriksA
     real, allocatable, dimension(:,:) :: matriksL, matriksU
-    real, dimension(3,3) :: matriks_dummy
     integer :: n
 
     ! Import matriks A dari file 'matriksA.dat'
