@@ -88,7 +88,6 @@ module system_of_linear_equation
         real :: sum
         integer :: n
         integer :: i, j, k
-        integer :: a
 
         n = ubound(matriksA, 1)
         matriksL = 0
@@ -97,12 +96,7 @@ module system_of_linear_equation
         allocate(matA(n, n))
         matA = matriksA
 
-        matriksL(:,1) = matA(:,1)
-        do j = 2, n
-            matriksU(1,j) = matA(1,j) / matriksL(1,1)
-        end do
-
-        do j = 2, n
+        do j = 1, n
             do i = j, n
                 sum = 0
                 do k = 1, j-1
@@ -123,12 +117,6 @@ module system_of_linear_equation
                     sum = sum + matriksL(j,k)*matriksU(k,i)
                 end do
                 matriksU(j,i) = (matA(j,i) - sum) / matriksL(j,j)
-            end do
-        end do
-        
-        do i = 1, n
-            do j = 1, n
-                if (i == j) matriksU(i,j) = 1
             end do
         end do
     end subroutine LU_decomposition
