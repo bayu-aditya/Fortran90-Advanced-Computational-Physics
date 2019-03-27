@@ -78,51 +78,47 @@ module system_of_linear_equation
     end subroutine gauss_jordan
 
 
-!    subroutine LU_decomposition(matriksA, matriksL, matriksU)
-!        implicit none
-!        real, dimension(:,:), intent(in) :: matriksA
-!        real, dimension(:,:), intent(out) :: matriksL
-!        real, dimension(:,:), intent(out) :: matriksU
-!        real :: sum
-!        integer :: n
-!        integer :: i, j, k
+    subroutine LU_decomposition(matriksA, matriksL, matriksU)
+        implicit none
+        real, dimension(:,:), intent(in) :: matriksA
+        real, dimension(:,:), intent(out) :: matriksL
+        real, dimension(:,:), intent(out) :: matriksU
+        real :: sum
+        integer :: n
+        integer :: i, j, k
 
-!        n = ubound(matriksA, 1)
-!        matriksL = 0
-!        matriksU = 0
+        n = ubound(matriksA, 1)
+        matriksL = 0
+        matriksU = 0
 
-!        matriksL(:,1) = matriksA(:,1)
-!        do j = 2, n
-!            matriksU(1,j) = matriksA(1,j) / matriksL(1,1)
-!        end do
+        matriksL(:,1) = matriksA(:,1)
+        do j = 2, n
+            matriksU(1,j) = matriksA(1,j) / matriksL(1,1)
+        end do
 
-        !do j = 2, n
-        !    do i = j, n
-        !        sum = 0
-        !        do k = 1, j-1
-        !            sum = sum + matriksL(i,k)*matriksU(k,j)
-        !        end do
-        !        matriksL(i,j) = matriksA(i,j) - sum
-        !    end do
-        !end do
+        do j = 2, n
+            do i = j, n
+                sum = 0
+                do k = 1, j-1
+                    sum = sum + matriksL(i,k)*matriksU(k,j)
+                end do
+                matriksL(i,j) = matriksA(i,j) - sum
 
-        !do i = 2, n-1
-        !    do j = i+1, n
-        !        sum = 0
-        !        do k = 1, i-1
-        !            sum = sum + matriksL(i,k)*matriksU(k,j)
-        !        end do
-        !        matriksU(i,j) = (matriksA(i,j) - sum) / matriksL(i,i)
-        !    end do
-        !end do
 
-        !do i = 1, n
-        !    do j = 1, n
-        !        if (i == j) matriksU(i,j) = 1
-        !    end do
-        !end do
+                sum = 0
+                do k = 1, j-1
+                    sum = sum + matriksL(j,k)*matriksU(k,i)
+                end do
+                matriksU(j,i) = (matriksA(j,i) - sum) / matriksL(j,j)
+            end do
+        end do
         
-!    end subroutine LU_decomposition
+        do i = 1, n
+            do j = 1, n
+                if (i == j) matriksU(i,j) = 1
+            end do
+        end do
+    end subroutine LU_decomposition
 
 
     subroutine iterasi_jacobi(matriksA, matriksB, x)

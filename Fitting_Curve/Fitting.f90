@@ -157,7 +157,7 @@ module fitting_curve
         !call print_matriks(matC)
         !write(*,*) "matriks B"
         !call print_vektor(matB)
-        !call print_hasil(hasil)
+        !call print_hasil(koef_polinomial)
         ! -------------- END OF ANALYSIS SECTION ------------------------
 
         ! Mendapatkan f(x)

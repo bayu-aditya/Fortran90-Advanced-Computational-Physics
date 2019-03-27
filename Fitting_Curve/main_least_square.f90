@@ -14,7 +14,7 @@ program main_least_square
     write(*,*) " Hasil ", hasil
 
     ! Untuk membuat plot dari interpolasi lagrange
-    call least_square_plot(dataX, dataY, 9, 'Hasil_orde_9.dat')
+    !call least_square_plot(dataX, dataY, 9, 'Hasil_orde_9.dat')
 
     deallocate(dataX)
     deallocate(dataY)

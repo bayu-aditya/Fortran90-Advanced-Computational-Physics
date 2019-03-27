@@ -30,7 +30,5 @@ program main_LU_decomposition
     call print_matriks(matriksL)
     write(*,*) "Matriks U setelah LU decomposition"
     call print_matriks(matriksU)
-
-    matriks_dummy = matmul(matriksL, matriksU)
-    call print_matriks(matriks_dummy)
+    
 end program main_LU_decomposition
