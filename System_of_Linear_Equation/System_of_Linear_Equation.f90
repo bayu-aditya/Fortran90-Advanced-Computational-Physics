@@ -119,7 +119,52 @@ module system_of_linear_equation
                 matriksU(j,i) = (matA(j,i) - sum) / matriksL(j,j)
             end do
         end do
+
+        deallocate(matA)
     end subroutine LU_decomposition
+
+
+    subroutine substitusi_LU_decomp(matriksL, matriksU, matriksB, matriksX)
+        implicit none
+        real, dimension(:,:), intent(in) :: matriksL, matriksU
+        real, dimension(:), intent(in) :: matriksB
+        real, dimension(:), intent(out) :: matriksX
+
+        real, allocatable, dimension(:) :: matriksY
+        real :: sum
+        integer :: i, j
+        integer :: n
+
+        n = ubound(matriksL, 1)
+        allocate(matriksY(n))
+        matriksY = 0
+
+        ! Substitusi maju untuk menghasilkan matriks Y
+        matriksY(1) = matriksB(1) / matriksL(1,1)
+        do i = 2, n
+            sum = 0.0
+            do j = 1, i-1
+                sum = sum + matriksL(i,j)*matriksY(j)
+            end do
+            matriksY(i) = (matriksB(i) - sum) / matriksL(i,i)
+        end do
+        write(*,'(A)') "Matriks Y"
+        call print_vektor(matriksY)
+
+        ! Substitusi mundur untuk menghasilkan matriks X
+        matriksX(n) = matriksY(n)
+        do i = 1, n-1
+            sum = 0
+            do j = n-i+1, n
+                sum = sum + matriksU(n-i,j)*matriksX(j)
+            end do
+            matriksX(n-i) = matriksY(n-i) - sum
+        end do
+        write(*,'(A)') "Matriks X (Hasil)"
+        call print_vektor(matriksX)
+
+        deallocate(matriksY)
+    end subroutine substitusi_LU_decomp
 
 
     subroutine iterasi_jacobi(matriksA, matriksB, x)
