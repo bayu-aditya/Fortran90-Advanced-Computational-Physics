@@ -50,7 +50,7 @@ call import_vektor(nama_file, vektor)
 ```
 **Args :**
 - ```nama_file``` : **intent(in), character.** Nama file dari vektor yang akan dimasukkan.
-- ```matriks``` : **intent(out), real, 2 dimensi.** Vektor yang dibaca dari file.
+- ```matriks``` : **intent(out), real, 1 dimensi.** Vektor yang dibaca dari file.
 
 ```
 call print_matriks(matriks)
