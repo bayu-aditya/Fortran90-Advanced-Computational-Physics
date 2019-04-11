@@ -66,6 +66,94 @@ module fitting_curve
     end function lagrange
 
 
+    subroutine lagrange_kubik_plot(dataX, dataY, name_output)
+        implicit none
+        real(KIND=DBL), dimension(:), intent(in) :: dataX
+        real(KIND=DBL), dimension(:), intent(in) :: dataY
+        character(*), intent(in) :: name_output
+
+        integer, parameter :: n_data_plot = 500
+        real(KIND=DBL), dimension(0:n_data_plot) :: X, Y
+        real(KIND=DBL) :: range, min, max, diff
+        integer :: i
+
+        ! Data untuk Sumbu X
+        range = maxval(dataX) - minval(dataX)
+        min = minval(dataX)
+        max = maxval(dataX)
+
+        diff = (max - min)/n_data_plot
+        X(0) = min
+        do i = 1, n_data_plot
+            X(i) = min + diff*DBLE(i)
+            Y(i) = lagrange_kubik(X(i), dataX, dataY)
+        end do
+
+        ! Membuat data koordinat titik plot ke dalam file
+        open(unit = 13, file = name_output, action='write')
+        do i = 0, n_data_plot
+            write(13, '(F25.15, A, F25.15)') X(i), ",", Y(i)
+        end do
+        close(13)
+
+        write(*, '(3(A))') "[INFO] Data interpolasi lagrange kubik '", name_output, "' berhasil dibuat"
+    end subroutine lagrange_kubik_plot
+
+
+    double precision function lagrange_kubik(x, dataX, dataY)
+        implicit none
+        real(KIND=DBL), intent(in) :: x
+        real(KIND=DBL), dimension(:), intent(in) :: dataX
+        real(KIND=DBL), dimension(:), intent(in) :: dataY
+
+        real(KIND=DBL), dimension(0:3) :: y_temp, x_temp
+        real(KIND=DBL) :: sum, prod
+        integer :: n, flags
+        integer :: i, j, k
+
+        n = ubound(dataX, 1)
+
+    ! Kondisi saat x diluar rentang dataX
+        if ((x < minval(dataX)) .or. (x > maxval(dataX))) then
+            write(*,'(A)') "[PERINGATAN] Nilai x berada diluar rentang data X"
+            STOP
+        end if
+
+    ! Kondisi saat x berada di antara range dataX 
+        ! Menentukan 4 titik sampel data mana yang akan digunakan
+        flags = 0
+        do i = 1, n
+            if (x >= dataX(i)) flags = flags + 1
+        end do
+
+        do i = 0, 3
+            ! Saat x berada di antara dataX(1) dan dataX(2) [ujung kiri]
+            if (flags == 1) then
+                x_temp(i) = dataX(flags + i)
+                y_temp(i) = dataY(flags + i)
+            ! Saat x berada di antara dataX(n-1) dan dataX(n) [ujung kanan]
+            else if (flags >= (n-1)) then
+                x_temp(i) = dataX(n - (3-i))
+                y_temp(i) = dataY(n - (3-i))
+            ! Saat x berada di tengah
+            else
+                x_temp(i) = dataX(flags - (i-1))
+                y_temp(i) = dataY(flags - (i-1))
+            end if
+        end do
+
+        ! Menentukan nilai polinomial
+        sum = 0
+        do j = 0, 3
+            prod = 1
+            do k = 0, 3
+                if (k/=j) prod = prod*((x - x_temp(k)) / (x_temp(j) - x_temp(k)))
+            end do
+
+            sum = sum + prod*y_temp(j)
+        end do
+        lagrange_kubik = sum
+    end function lagrange_kubik
 !+-----------------------------------------------------------------------------------------+
 !                         FITTING DATA : Least Square                                      |
 !+-----------------------------------------------------------------------------------------+
