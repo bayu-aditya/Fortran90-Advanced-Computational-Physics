@@ -148,7 +148,7 @@ module fitting_curve
             end do
             matB(k) = sum
         end do
-        
+
         ! Proses Gauss Jordan
         call gauss_jordan(matC, matB, koef_polinomial)
 
