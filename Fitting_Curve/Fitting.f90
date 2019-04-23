@@ -287,9 +287,10 @@ module fitting_curve
         implicit none
         real(KIND=DBL), dimension(:), intent(in) :: dataX
         real(KIND=DBL), dimension(:), intent(in) :: dataY
-        integer :: orde
+        integer, intent(in) :: orde
         character(*), intent(in) :: name_output
 
+        real(KIND=DBL), allocatable, dimension(:) :: koef_polinomial
         integer, parameter :: n_data_plot = 500
         real(KIND=DBL), dimension(0:n_data_plot) :: X, Y
         real(KIND=DBL) :: range, min, max, diff
@@ -300,11 +301,14 @@ module fitting_curve
         min = minval(dataX) - range/5_DBL
         max = maxval(dataX) + range/5_DBL
 
+        ! Mendapatkan Koefisien Polinomial
+        call koefisien_least_square(dataX, dataY, orde, koef_polinomial)
+
         diff = (max - min)/n_data_plot
         X(0) = min
         do i = 1, n_data_plot
             X(i) = min + diff*DBLE(i)
-            Y(i) = least_square(X(i), dataX, dataY, orde)
+            Y(i) = least_square(X(i), koef_polinomial)
         end do
 
         ! Membuat data koordinat titik plot ke dalam file
@@ -318,16 +322,15 @@ module fitting_curve
     end subroutine least_square_plot
 
 
-    double precision function least_square(x, dataX, dataY, orde)
+    subroutine koefisien_least_square(dataX, dataY, orde, koef_polinomial)
         implicit none
-        real(KIND=DBL), intent(in) :: x
         real(KIND=DBL), dimension(:), intent(in) :: dataX
         real(KIND=DBL), dimension(:), intent(in) :: dataY
         integer, intent(in) :: orde
+        real(KIND=DBL), allocatable, dimension(:), intent(out) :: koef_polinomial
 
         real(KIND=DBL), allocatable, dimension(:,:) :: matC
         real(KIND=DBL), allocatable, dimension(:) :: matB
-        real(KIND=DBL), allocatable, dimension(:) :: koef_polinomial
         real(KIND=DBL) :: sum
         integer :: i, j, k
         integer :: n
@@ -365,25 +368,31 @@ module fitting_curve
 
         ! Proses Gauss Jordan
         call gauss_jordan(matC, matB, koef_polinomial)
-
+        
         ! ------------------ ANALYSIS SECTION ---------------------------
-        !write(*,*) "matriks C"
-        !call print_matriks(matC)
-        !write(*,*) "matriks B"
-        !call print_vektor(matB)
-        !call print_hasil(koef_polinomial)
+        write(*,*) "matriks C"
+        call print_matriks(matC)
+        write(*,*) "matriks B"
+        call print_vektor(matB)
+        call print_hasil(koef_polinomial)
         ! -------------- END OF ANALYSIS SECTION ------------------------
+    end subroutine koefisien_least_square
 
-        ! Mendapatkan f(x)
+
+    double precision function least_square(x, koef_polinomial)
+        implicit none
+        real(KIND=DBL), intent(in) :: x
+        real(KIND=DBL), allocatable, dimension(:), intent(in) :: koef_polinomial
+
+        real(KIND=DBL) :: sum
+        integer :: orde, j
+
+        orde = ubound(koef_polinomial, 1)
         sum = 0_DBL
         do j = 0, orde
             sum = sum + koef_polinomial(j)*x**(j)
         end do
         least_square = sum
-
-        deallocate(matC)
-        deallocate(matB)
-        deallocate(koef_polinomial)
     end function least_square
 
 
