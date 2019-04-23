@@ -370,10 +370,10 @@ module fitting_curve
         call gauss_jordan(matC, matB, koef_polinomial)
         
         ! ------------------ ANALYSIS SECTION ---------------------------
-        write(*,*) "matriks C"
-        call print_matriks(matC)
-        write(*,*) "matriks B"
-        call print_vektor(matB)
+        !write(*,*) "matriks C"
+        !call print_matriks(matC)
+        !write(*,*) "matriks B"
+        !call print_vektor(matB)
         call print_hasil(koef_polinomial)
         ! -------------- END OF ANALYSIS SECTION ------------------------
     end subroutine koefisien_least_square

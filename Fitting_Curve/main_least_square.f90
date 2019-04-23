@@ -4,13 +4,15 @@ program main_least_square
     integer, parameter :: DBL = 8
     real(KIND=DBL), allocatable, dimension(:) :: dataX
     real(KIND=DBL), allocatable, dimension(:) :: dataY
+    real(KIND=DBL), allocatable, dimension(:) :: koef_polinomial
     real(KIND=DBL) :: x, hasil
 
     call import_data('data.dat', dataX, dataY)
 
     ! Untuk melihat hasil dari least square di suatu titik X
     x = 30_DBL
-    hasil = least_square(x, dataX, dataY, 9)
+    call koefisien_least_square(dataX, dataY, 9, koef_polinomial)
+    hasil = least_square(x, koef_polinomial)
     write(*,*) " Hasil ", hasil
 
     ! Untuk membuat plot dari interpolasi lagrange
@@ -18,4 +20,5 @@ program main_least_square
 
     deallocate(dataX)
     deallocate(dataY)
+    deallocate(koef_polinomial)
 end program main_least_square
