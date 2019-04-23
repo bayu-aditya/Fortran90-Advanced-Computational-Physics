@@ -7,17 +7,17 @@ module system_of_linear_equation
 !+------------------------------------------------------------------------------+
     subroutine gauss_jordan(matriksA, matriksB, x)
         implicit none
-        real, dimension(:,:), intent(inout) :: matriksA
-        real, allocatable, dimension(:,:) :: matA_dummy     ! matriks A ke k
-        real, allocatable, dimension(:,:) :: matA_dummy_1   ! matriks A ke k-1
+        real(8), dimension(:,:), intent(inout) :: matriksA
+        real(8), allocatable, dimension(:,:) :: matA_dummy     ! matriks A ke k
+        real(8), allocatable, dimension(:,:) :: matA_dummy_1   ! matriks A ke k-1
 
-        real, dimension(:), intent(inout) :: matriksB
-        real, allocatable, dimension(:) :: matB_dummy       ! matriks B ke k
-        real, allocatable, dimension(:) :: matB_dummy_1     ! matriks B ke k-1
+        real(8), dimension(:), intent(inout) :: matriksB
+        real(8), allocatable, dimension(:) :: matB_dummy       ! matriks B ke k
+        real(8), allocatable, dimension(:) :: matB_dummy_1     ! matriks B ke k-1
 
-        real, dimension(:), intent(out) :: x                ! hasil dari x1, x2, ..., xn
+        real(8), dimension(:), intent(out) :: x                ! hasil dari x1, x2, ..., xn
         
-        real :: sum
+        real(8) :: sum
         integer :: m, n
         integer :: i, j, k
 
@@ -80,12 +80,12 @@ module system_of_linear_equation
 
     subroutine LU_decomposition(matriksA, matriksL, matriksU)
         implicit none
-        real, dimension(:,:), intent(in) :: matriksA
-        real, dimension(:,:), intent(out) :: matriksL
-        real, dimension(:,:), intent(out) :: matriksU
+        real(8), dimension(:,:), intent(in) :: matriksA
+        real(8), dimension(:,:), intent(out) :: matriksL
+        real(8), dimension(:,:), intent(out) :: matriksU
 
-        real, allocatable, dimension(:,:) :: matA
-        real :: sum
+        real(8), allocatable, dimension(:,:) :: matA
+        real(8) :: sum
         integer :: n
         integer :: i, j, k
 
@@ -126,12 +126,12 @@ module system_of_linear_equation
 
     subroutine substitusi_LU_decomp(matriksL, matriksU, matriksB, matriksX)
         implicit none
-        real, dimension(:,:), intent(in) :: matriksL, matriksU
-        real, dimension(:), intent(in) :: matriksB
-        real, dimension(:), intent(out) :: matriksX
+        real(8), dimension(:,:), intent(in) :: matriksL, matriksU
+        real(8), dimension(:), intent(in) :: matriksB
+        real(8), dimension(:), intent(out) :: matriksX
 
-        real, allocatable, dimension(:) :: matriksY
-        real :: sum
+        real(8), allocatable, dimension(:) :: matriksY
+        real(8) :: sum
         integer :: i, j
         integer :: n
 
@@ -169,12 +169,12 @@ module system_of_linear_equation
 
     subroutine iterasi_jacobi(matriksA, matriksB, x)
         implicit none
-        real, dimension(:,:), intent(in) :: matriksA
-        real, dimension(:), intent(in) :: matriksB
-        real, allocatable, dimension(:), intent(out) :: x
-        real, allocatable, dimension(:) :: x_old
-        real :: sum, tol_i
-        real, parameter :: tolerance = 0.001
+        real(8), dimension(:,:), intent(in) :: matriksA
+        real(8), dimension(:), intent(in) :: matriksB
+        real(8), allocatable, dimension(:), intent(out) :: x
+        real(8), allocatable, dimension(:) :: x_old
+        real(8) :: sum, tol_i
+        real(8), parameter :: tolerance = 0.001
         integer :: n
         integer :: i, j
         integer :: flags
@@ -224,8 +224,8 @@ module system_of_linear_equation
 !+------------------------------------------------------------------------------+
     subroutine pivot(matriksA, matriksB, k)
         implicit none
-        real, dimension(:,:), intent(inout) :: matriksA
-        real, dimension(:), intent(inout) :: matriksB
+        real(8), dimension(:,:), intent(inout) :: matriksA
+        real(8), dimension(:), intent(inout) :: matriksB
         integer, intent(in) :: k
         integer :: n
         n = ubound(matriksA, 1)
@@ -238,7 +238,7 @@ module system_of_linear_equation
     subroutine tukar_baris(matriks, baris_asal, baris_tujuan)
         implicit none
         integer, intent(in) :: baris_asal, baris_tujuan
-        real, dimension(:,:), intent(inout) :: matriks
+        real(8), dimension(:,:), intent(inout) :: matriks
         integer :: j
 
         do j = 1, ubound(matriks, 1)
@@ -250,8 +250,8 @@ module system_of_linear_equation
 
     subroutine swap(a, b)
         implicit none
-        real, intent(inout) :: a, b
-        real :: temp
+        real(8), intent(inout) :: a, b
+        real(8) :: temp
 
         temp = a
         a = b
@@ -265,7 +265,7 @@ module system_of_linear_equation
     subroutine import_matriks(nama_file, matriks, n)
         implicit none
         character(*), intent(in) :: nama_file
-        real, allocatable, dimension(:,:), intent(out) :: matriks
+        real(8), allocatable, dimension(:,:), intent(out) :: matriks
         integer :: i, j, n
 
         open(unit = 3, file = nama_file, action = 'read')
@@ -279,7 +279,7 @@ module system_of_linear_equation
     subroutine import_vektor(nama_file, vektor)
         implicit none
         character(*), intent(in) :: nama_file
-        real, allocatable, dimension(:), intent(out) :: vektor
+        real(8), allocatable, dimension(:), intent(out) :: vektor
         integer :: j, n
 
         open(unit = 4, file = nama_file, action = 'read')
@@ -291,7 +291,7 @@ module system_of_linear_equation
 
     subroutine print_matriks(matriks)
         implicit none
-        real, dimension(:,:), intent(in) :: matriks
+        real(8), dimension(:,:), intent(in) :: matriks
         integer :: i, j
 
         do i = lbound(matriks, 1), ubound(matriks, 1)
