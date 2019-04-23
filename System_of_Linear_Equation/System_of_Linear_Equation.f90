@@ -303,7 +303,7 @@ module system_of_linear_equation
 
     subroutine print_vektor(vektor)
         implicit none
-        real, dimension(:), intent(in) :: vektor
+        real(8), dimension(:), intent(in) :: vektor
         integer :: i
 
         do i = lbound(vektor, 1), ubound(vektor, 1)
