@@ -2,10 +2,10 @@ program main_LU_decomposition
     use system_of_linear_equation
     
     implicit none
-    real, allocatable, dimension(:,:) :: matriksA
-    real, allocatable, dimension(:) :: matriksB
-    real, allocatable, dimension(:) :: hasil
-    real, allocatable, dimension(:,:) :: matriksL, matriksU
+    real(8), allocatable, dimension(:,:) :: matriksA
+    real(8), allocatable, dimension(:) :: matriksB
+    real(8), allocatable, dimension(:) :: hasil
+    real(8), allocatable, dimension(:,:) :: matriksL, matriksU
     integer :: n
 
     ! Import matriks A dari file 'matriksA.dat'
@@ -28,7 +28,7 @@ program main_LU_decomposition
     call print_matriks(matriksU)
 
     ! Proses LU Decomposition
-    call LU_decomposition(matriksA, matriksL, matriksU)
+    call LU_decomposition(matriksA, matriksB, matriksL, matriksU)
     call substitusi_LU_decomp(matriksL, matriksU, matriksB, hasil)
     
     write(*,*) "Matriks A setelah LU decomposition"

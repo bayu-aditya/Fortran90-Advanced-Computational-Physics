@@ -78,13 +78,44 @@ module system_of_linear_equation
     end subroutine gauss_jordan
 
 
-    subroutine LU_decomposition(matriksA, matriksL, matriksU)
+    subroutine gauss_jordan_multiple(matriksA, matriksB, x)
         implicit none
-        real(8), dimension(:,:), intent(in) :: matriksA
+        real(8), dimension(:,:), intent(inout) :: matriksA
+        real(8), dimension(:,:), intent(inout) :: matriksB
+        real(8), dimension(:,:), intent(out) :: x
+
+        real(8), allocatable, dimension(:,:) :: A_dummy
+        real(8), allocatable, dimension(:) :: B_dummy
+        real(8), allocatable, dimension(:) :: x_dummy
+
+        integer, parameter :: DBL = 8
+        integer :: m, n, i
+
+        m = ubound(matriksB, 1)
+        n = ubound(matriksB, 2)
+        allocate(A_dummy(m,m))
+        allocate(B_dummy(m))
+        allocate(x_dummy(m))
+
+        x_dummy = 0.0_DBL
+        do i = 1, n
+            A_dummy = matriksA
+            B_dummy = matriksB(:,i)
+            call gauss_jordan(A_dummy, B_dummy, x_dummy)
+            x(:,i) = x_dummy
+        end do
+    end subroutine gauss_jordan_multiple
+
+
+    subroutine LU_decomposition(matriksA, matriksB, matriksL, matriksU)
+        implicit none
+        real(8), dimension(:,:), intent(inout) :: matriksA
+        real(8), dimension(:), intent(inout) :: matriksB
         real(8), dimension(:,:), intent(out) :: matriksL
         real(8), dimension(:,:), intent(out) :: matriksU
 
         real(8), allocatable, dimension(:,:) :: matA
+        real(8), allocatable, dimension(:) :: matB
         real(8) :: sum
         integer :: n
         integer :: i, j, k
@@ -94,7 +125,9 @@ module system_of_linear_equation
         matriksU = 0
 
         allocate(matA(n, n))
+        allocate(matB(n))
         matA = matriksA
+        matB = matriksB
 
         do j = 1, n
             do i = j, n
@@ -108,6 +141,7 @@ module system_of_linear_equation
             if (matriksL(j,j) == 0) then
                 call tukar_baris(matriksL, j, j+1)
                 call tukar_baris(matA, j, j+1)
+                call swap(matB(j), matB(j+1))
                 !call pivot(matA, matriksB, j)
             end if
 
@@ -120,7 +154,9 @@ module system_of_linear_equation
             end do
         end do
 
-        deallocate(matA)
+        matriksA = matA
+        matriksB = matB
+        deallocate(matA, matB)
     end subroutine LU_decomposition
 
 
@@ -275,6 +311,22 @@ module system_of_linear_equation
             read(3,*) (matriks(i,j), j = 1, n)
         end do
     end subroutine import_matriks
+
+    
+    subroutine import_matriks_nonpersegi(nama_file, matriks, m, n)
+        implicit none
+        character(*), intent(in) :: nama_file
+        real(8), allocatable, dimension(:,:), intent(out) :: matriks
+        integer :: i, j, m, n
+
+        open(unit = 3, file = nama_file, action = 'read')
+        read(3,*) m, n
+        allocate(matriks(m,n))
+        do i = 1, m
+            read(3,*) (matriks(i,j), j = 1, n)
+        end do
+    end subroutine import_matriks_nonpersegi
+
 
     subroutine import_vektor(nama_file, vektor)
         implicit none
