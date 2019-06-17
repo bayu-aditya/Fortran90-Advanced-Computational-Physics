@@ -1,0 +1,6 @@
+# Veusz saved document (version 3.0.1)
+# Saved at 2019-04-23T13:23:56.307487
+
+AddImportPath(u'/home/bayu/Documents/advanced_computational_physics/Soal/UTS/2016/No_1')
+ImportFileCSV(u'Orde_2.dat', linked=True, renames={u'col1': u'orde2X', u'col2': u'orde2Y'}, rowsignore=1, skipwhitespace=True)
+Set('StyleSheet/axis-function/autoRange', 'next-tick')
